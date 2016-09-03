@@ -5,6 +5,9 @@ from keras import backend as K
 
 import tensorflow as tf
 
+import numpy as np
+import pandas as pd
+
 from data import IMG_H, IMG_W
 import data
 
@@ -45,7 +48,8 @@ def build_network():
     dense2 = Dense(2048, activation='relu')(drop1)
     drop2 = Dropout(0.5)(dense2)
 
-    dense3 = Dense(30, activation='relu')(drop2)
+    # parametrize this 8?
+    dense3 = Dense(8, activation='relu')(drop2)
 
     model = Model(input=inputs, output=dense3)
 
@@ -56,16 +60,37 @@ def build_network():
     return model
 
 
+def have_a_look_at_results():
+    imgs = data.load_test_data()
+    predictions = np.load('predictions.npy')
+
+    y_hat = pd.DataFrame(predictions)
+    y_hat.columns = data.load_column_names()
+
+    for i in xrange(imgs.shape[0]):
+        data.plot_img(imgs[i], y_hat.iloc[i])
+
+
 def train():
     imgs, ys = data.load_train_data()
+    imgs_test = data.load_test_data()
     model = build_network()
 
     model.fit(
         imgs, ys,
-        validation_split=0.2
+        nb_epoch=60,
+        validation_split=0.1
     )
+
+    y_hat = model.predict(
+        imgs_test
+
+    )
+
+    np.save('predictions', y_hat)
 
 
 if __name__ == '__main__':
-    train()
+    # train()
+    have_a_look_at_results()
 
