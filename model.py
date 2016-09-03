@@ -40,7 +40,12 @@ def build_network():
     )(pool4)
     pool5 = MaxPooling2D(pool_size=(2, 2))(conv5)
 
-    flat = Flatten()(pool5)
+    conv6 = Convolution2D(
+        256, 3, 3, activation='relu', border_mode='same'
+    )(pool5)
+    pool6 = MaxPooling2D(pool_size=(2, 2))(conv6)
+
+    flat = Flatten()(pool6)
 
     dense1 = Dense(2048, activation='relu')(flat)
     drop1 = Dropout(0.5)(dense1)
@@ -78,7 +83,7 @@ def train():
 
     model.fit(
         imgs, ys,
-        nb_epoch=60,
+        nb_epoch=120,
         validation_split=0.1
     )
 
@@ -91,6 +96,6 @@ def train():
 
 
 if __name__ == '__main__':
-    # train()
+    train()
     have_a_look_at_results()
 
